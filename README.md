@@ -1,41 +1,47 @@
-# IFC Element Extractor
+IFC Element Extractor – Python Script
+This Python script extracts elements and their properties from IFC files and exports them to CSV or Excel format.
+It supports filtering by IFC class, retrieving base attributes (e.g., Name, Level, PredefinedType), and collecting all available property set (Pset) and quantity (Qto) data.
 
-Export IFC elements (classes + properties) to **CSV** or **Excel**.  
-Tested with IFC2x3/IFC4.
+How it Works
+Opens an IFC2x3 or IFC4 model using ifcopenshell.
 
-## Features
-- Select IFC classes (e.g., `IfcWall,IfcDoor,IfcWindow` or `*` for all).
-- Export base fields (`GlobalId, Entity, Name, Level`) + **all** Psets/Qto as flat columns.
-- Output to CSV or XLSX.
+Selects elements from specified classes (e.g., IfcWall, IfcDoor, IfcWindow) or all classes.
 
-## Install
-```bash
-python -m venv .venv && . .venv/bin/activate  # (Windows: .venv\Scripts\activate)
+Retrieves base attributes and all Pset/Qto data.
+
+Writes the extracted data to CSV or Excel.
+
+How to Use
+Install Python 3.11+ and dependencies:
+
+bash
+Kopieren
+Bearbeiten
 pip install -r requirements.txt
-```
+Run the script:
 
-## Usage
-```bash
-# Default → CSV (ifc_elements.csv)
-python ifc_element_extractor.py model.ifc
+bash
+Kopieren
+Bearbeiten
+python ifc_element_extractor.py model.ifc --csv output.csv
+Optional: export to Excel:
 
-# Specific classes + extra attributes → CSV
-python ifc_element_extractor.py model.ifc -c "IfcWall,IfcDoor" -p "Name,Tag,PredefinedType" --csv out.csv
+bash
+Kopieren
+Bearbeiten
+python ifc_element_extractor.py model.ifc --xlsx output.xlsx
+Example Output
+GlobalId	Entity	Name	Level	Pset_WallCommon:FireRating
+3kd9...	IfcWall	ExtWall01	Level1	REI60
 
-# All classes → Excel
-python ifc_element_extractor.py model.ifc -c "*" --xlsx out.xlsx
+Prerequisites
+Python 3.11 or newer
 
-# Limit rows (debug)
-python ifc_element_extractor.py model.ifc --limit 200 --csv sample.csv
-```
+ifcopenshell
 
-## Output
-- **CSV/XLSX columns**:  
-  `GlobalId, Entity, Name, Level, [your top-level attributes], Pset_*:* / Qto_*:*`
+pandas + openpyxl for Excel export (optional)
 
-## Notes
-- Excel export requires `pandas` + `openpyxl`.
-- Works standalone (no Revit/Dynamo needed).
+Credits
+Author: Rodion Dykhanov
+For learning and demonstration purposes.
 
-## License
-MIT
