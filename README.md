@@ -1,36 +1,41 @@
-# Revit Parameters Export – Dynamo Script
+# IFC Element Extractor
 
-This Dynamo script allows you to export key parameters (such as Name, Level, Category, and dimensions) from selected Revit elements directly to an Excel file.
+Export IFC elements (classes + properties) to **CSV** or **Excel**.  
+Tested with IFC2x3/IFC4.
 
-## How it Works
+## Features
+- Select IFC classes (e.g., `IfcWall,IfcDoor,IfcWindow` or `*` for all).
+- Export base fields (`GlobalId, Entity, Name, Level`) + **all** Psets/Qto as flat columns.
+- Output to CSV or XLSX.
 
-- Selects all elements of a given category (e.g., Walls, Doors, Windows) in your Revit model.
-- Extracts user-specified parameters (e.g., “Type Name”, “Level”, “Area”, etc.).
-- Writes the parameter values to an Excel spreadsheet for easy review and further analysis.
+## Install
+```bash
+python -m venv .venv && . .venv/bin/activate  # (Windows: .venv\Scripts\activate)
+pip install -r requirements.txt
+```
 
-## How to Use
+## Usage
+```bash
+# Default → CSV (ifc_elements.csv)
+python ifc_element_extractor.py model.ifc
 
-1. Open your Revit project and start Dynamo.
-2. Open the provided `.dyn` script file.
-3. Select the category you wish to export (can duplicate for multiple categories).
-4. Enter parameter names as string inputs.
-5. Specify your Excel file path.
-6. Run the script. The data will be written to the Excel file.
+# Specific classes + extra attributes → CSV
+python ifc_element_extractor.py model.ifc -c "IfcWall,IfcDoor" -p "Name,Tag,PredefinedType" --csv out.csv
 
-## Example Output
+# All classes → Excel
+python ifc_element_extractor.py model.ifc -c "*" --xlsx out.xlsx
 
-| ElementId | Type Name | Level    | Area   |
-|-----------|-----------|----------|--------|
-| 123456    | Basic 200 | Level 1  | 24.5   |
-| 789012    | Basic 150 | Level 2  | 10.2   |
+# Limit rows (debug)
+python ifc_element_extractor.py model.ifc --limit 200 --csv sample.csv
+```
 
-## Prerequisites
+## Output
+- **CSV/XLSX columns**:  
+  `GlobalId, Entity, Name, Level, [your top-level attributes], Pset_*:* / Qto_*:*`
 
-- Autodesk Revit (tested with 2023)
-- Dynamo for Revit (2.x or higher)
-- Excel installed (for best results)
+## Notes
+- Excel export requires `pandas` + `openpyxl`.
+- Works standalone (no Revit/Dynamo needed).
 
-## Credits
-
-Author: Rodion Dykhanov  
-For learning and demonstration purposes.
+## License
+MIT
