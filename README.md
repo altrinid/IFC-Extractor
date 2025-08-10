@@ -15,20 +15,17 @@ How to Use
 Install Python 3.11+ and dependencies:
 
 bash
-Kopieren
-Bearbeiten
+
 pip install -r requirements.txt
 Run the script:
 
 bash
-Kopieren
-Bearbeiten
+
 python ifc_element_extractor.py model.ifc --csv output.csv
 Optional: export to Excel:
 
 bash
-Kopieren
-Bearbeiten
+
 python ifc_element_extractor.py model.ifc --xlsx output.xlsx
 Example Output
 GlobalId	Entity	Name	Level	Pset_WallCommon:FireRating
