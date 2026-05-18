@@ -68,60 +68,40 @@ def get_psets(entity) -> Dict[str, Any]:
     { 'Pset_WallCommon:FireRating': 'REI60', 'Qto_WallBaseQuantities:Length': 12.3, ... }
     """
     out = {}
+    psets = {}
     try:
         psets = ifcopenshell.util.element.get_psets(entity, include_inherited=True)  # type: ignore
     except Exception:
-        # Fallback without util
-        psets = {}
-        # Through IsDefinedBy → IfcRelDefinesByProperties → IfcPropertySet/IfcElementQuantity
-try:
-    psets = ifcopenshell.util.element.get_psets(entity, include_inherited=True)  # type: ignore
-except Exception:
-    # Fallback without util
-    psets = {}
-    # Through IsDefinedBy → IfcRelDefinesByProperties → IfcPropertySet/IfcElementQuantity
-    try:
-        for rel in getattr(entity, "IsDefinedBy", []) or []:
-            props = getattr(rel, "RelatingPropertyDefinition", None)
-            if not props:
-                continue
-            if props.is_a("IfcPropertySet"):
-                for p in props.HasProperties or []:
-                    key = f"{props.Name}:{p.Name}"
-                    out[key] = getattr(p, "NominalValue", getattr(p, "Description", None))
-            elif props.is_a("IfcElementQuantity"):
-                for q in props.Quantities or []:
-                    val = None
-                    for f in ("LengthValue", "AreaValue", "VolumeValue", "CountValue", "WeightValue", "TimeValue"):
-                        if hasattr(q, f) and getattr(q, f) is not None:
-                            val = getattr(q, f)
-                            break
-                    key = f"{props.Name}:{q.Name}"
-                    out[key] = val
-    except Exception:
-        pass
+        try:
+            for rel in getattr(entity, "IsDefinedBy", []) or []:
+                props = getattr(rel, "RelatingPropertyDefinition", None)
+                if not props:
+                    continue
+                if props.is_a("IfcPropertySet"):
+                    for p in props.HasProperties or []:
+                        key = f"{props.Name}:{p.Name}"
+                        out[key] = getattr(p, "NominalValue", getattr(p, "Description", None))
+                elif props.is_a("IfcElementQuantity"):
+                    for q in props.Quantities or []:
+                        val = None
+                        for f in ("LengthValue", "AreaValue", "VolumeValue", "CountValue", "WeightValue", "TimeValue"):
+                            if hasattr(q, f) and getattr(q, f) is not None:
+                                val = getattr(q, f)
+                                break
+                        key = f"{props.Name}:{q.Name}"
+                        out[key] = val
+        except Exception:
+            pass
 
     if psets:
-        # util returns already flat structure, but grouped by Pset
-        flat = {}
         for grp, vals in psets.items():
             if isinstance(vals, dict):
                 for k, v in vals.items():
-                    flat[f"{grp}:{k}"] = v
+                    out[f"{grp}:{k}"] = v
             else:
-                flat[grp] = vals
-        out.update(flat)
-        # util returns already flat structure, but grouped by Pset
-        flat = {}
-        for grp, vals in psets.items():
-            if isinstance(vals, dict):
-                for k, v in vals.items():
-                    flat[f"{grp}:{k}"] = v
-            else:
-                flat[grp] = vals
-        out.update(flat)
+                out[grp] = vals
 
-    #    return out
+    return out
     
 def gather_elements(model, classes: List[str]) -> List[Any]:
     elems = []
