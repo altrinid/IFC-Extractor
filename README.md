@@ -1,44 +1,106 @@
-IFC Element Extractor – Python Script
-This Python script extracts elements and their properties from IFC files and exports them to CSV or Excel format.
-It supports filtering by IFC class, retrieving base attributes (e.g., Name, Level, PredefinedType), and collecting all available property set (Pset) and quantity (Qto) data.
+IFC Element Extractor – Python Scripts
+This repository contains two Python scripts for extracting data from IFC files.
 
-How it Works
-Opens an IFC2x3 or IFC4 model using ifcopenshell.
+---
 
-Selects elements from specified classes (e.g., IfcWall, IfcDoor, IfcWindow) or all classes.
+## 1. General IFC Extractor (`ifc_element_extractor.py`)
 
-Retrieves base attributes and all Pset/Qto data.
+Extracts elements and their properties from any IFC2x3 or IFC4 file and exports them to CSV.
+Supports filtering by IFC class and collects all available Pset/Qto data.
 
-Writes the extracted data to CSV or Excel.
+### Usage
 
-How to Use
-Install Python 3.11+ and dependencies:
-
-bash
-
+```bash
 pip install -r requirements.txt
-Run the script:
+python ifc_element_extractor.py model.ifc -o output.csv
+```
 
-bash
+**Options**
 
-python ifc_element_extractor.py model.ifc --csv output.csv
-Optional: export to Excel:
+| Flag | Default | Description |
+|------|---------|-------------|
+| `-o` | `ifc_elements.csv` | Output CSV path |
+| `-c` | `IfcWall,IfcDoor,IfcWindow` | Comma-separated IFC classes (use `*` for all) |
+| `-p` | `PredefinedType,Tag` | Extra top-level attributes to include |
+| `--limit` | 0 (off) | Cap element count (debug) |
 
-bash
+### Example Output
 
-python ifc_element_extractor.py model.ifc --xlsx output.xlsx
-Example Output
-GlobalId	Entity	Name	Level	Pset_WallCommon:FireRating
-3kd9...	IfcWall	ExtWall01	Level1	REI60
+| GlobalId | Entity | Name | Level | Pset_WallCommon:FireRating |
+|----------|--------|------|-------|---------------------------|
+| 3kd9... | IfcWall | ExtWall01 | Level1 | REI60 |
 
-Prerequisites
-Python 3.11 or newer
+---
 
-ifcopenshell
+## 2. ProVI IFC Extractor (`provi_ifc_extractor.py`)
 
-pandas + openpyxl for Excel export (optional)
+Specialised extractor for **ProVI** road/civil design exports (IFC4X3).
+Extracts alignment geometry, road layers, pavements, and bridge structures into
+separate sheets of an Excel workbook (or individual CSV files).
 
-Credits
-Author: Rodion Dykhanov
-For learning and demonstration purposes.
+### Output sheets
 
+| Sheet | Contents |
+|-------|----------|
+| `Alignments` | Alignment summary + property sets |
+| `Alignment_Horizontal` | Horizontal segments (line, arc, clothoid, …) |
+| `Alignment_Vertical` | Vertical segments (constant grade, parabolic arc, …) |
+| `Alignment_Cant` | Cant/super-elevation segments |
+| `Roads` | `IfcRoad` / `IfcFacility` elements |
+| `Pavements` | `IfcPavement` and `IfcCourse` layers |
+| `Bridges` | `IfcBridge` and `IfcBridgePart` elements |
+| `Elements` | General civil elements (kerbs, earthworks, signs, …) |
+
+### Usage
+
+```bash
+pip install -r requirements.txt
+
+# Default: produces <model>_provi_extract.xlsx next to the IFC file
+python provi_ifc_extractor.py model.ifc
+
+# Explicit Excel output
+python provi_ifc_extractor.py model.ifc -o output.xlsx
+
+# CSV output (one file per sheet)
+python provi_ifc_extractor.py model.ifc --csv-dir ./output
+```
+
+### Horizontal segment fields
+
+`AlignmentName`, `SegmentId`, `PredefinedType`, `StartDistAlong` (cumulative,
+computed), `SegmentLength`, `StartPointX`, `StartPointY`, `StartDirection`,
+`StartRadiusOfCurvature`, `EndRadiusOfCurvature`, `GravityCenterLineHeight`
+
+Supported `PredefinedType` values: `LINE`, `CIRCULARARC`, `CLOTHOID`,
+`CUBIC`, `HELMERTCURVE`, `BLOSSCURVE`, `COSINECURVE`, `SINECURVE`, `VIENNESEBEND`
+
+### Vertical segment fields
+
+`AlignmentName`, `SegmentId`, `PredefinedType`, `StartDistAlong`,
+`HorizontalLength`, `StartHeight`, `StartGradient`, `EndGradient`,
+`RadiusOfCurvature`
+
+Supported `PredefinedType` values: `CONSTANTGRADIENT`, `PARABOLICARC`, `CIRCULARARC`
+
+### Cant segment fields
+
+`AlignmentName`, `SegmentId`, `PredefinedType`, `StartDistAlong`,
+`HorizontalLength`, `StartCantLeft`, `EndCantLeft`, `StartCantRight`,
+`EndCantRight`, `RailHeadDistance`
+
+---
+
+## Prerequisites
+
+- Python 3.11+
+- `ifcopenshell >= 0.7`
+- `pandas >= 2.0` + `openpyxl >= 3.1` (Excel output, optional for the general extractor)
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+Credits: Rodion Dykhanov – for learning and demonstration purposes.
