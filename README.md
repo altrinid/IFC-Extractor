@@ -68,9 +68,9 @@ python provi_ifc_extractor.py model.ifc --csv-dir ./output
 
 ### Horizontal segment fields
 
-`AlignmentName`, `SegmentId`, `PredefinedType`, `StartDistAlong`,
-`HorizontalLength`, `StartPointX`, `StartPointY`, `StartDirection`,
-`StartRadiusOfCurvature`, `EndRadiusOfCurvature`, `IsEntry`
+`AlignmentName`, `SegmentId`, `PredefinedType`, `StartDistAlong` (cumulative,
+computed), `SegmentLength`, `StartPointX`, `StartPointY`, `StartDirection`,
+`StartRadiusOfCurvature`, `EndRadiusOfCurvature`, `GravityCenterLineHeight`
 
 Supported `PredefinedType` values: `LINE`, `CIRCULARARC`, `CLOTHOID`,
 `CUBIC`, `HELMERTCURVE`, `BLOSSCURVE`, `COSINECURVE`, `SINECURVE`, `VIENNESEBEND`
@@ -79,9 +79,15 @@ Supported `PredefinedType` values: `LINE`, `CIRCULARARC`, `CLOTHOID`,
 
 `AlignmentName`, `SegmentId`, `PredefinedType`, `StartDistAlong`,
 `HorizontalLength`, `StartHeight`, `StartGradient`, `EndGradient`,
-`RadiusOfCurvature`, `IsConvex`
+`RadiusOfCurvature`
 
 Supported `PredefinedType` values: `CONSTANTGRADIENT`, `PARABOLICARC`, `CIRCULARARC`
+
+### Cant segment fields
+
+`AlignmentName`, `SegmentId`, `PredefinedType`, `StartDistAlong`,
+`HorizontalLength`, `StartCantLeft`, `EndCantLeft`, `StartCantRight`,
+`EndCantRight`, `RailHeadDistance`
 
 ---
 
